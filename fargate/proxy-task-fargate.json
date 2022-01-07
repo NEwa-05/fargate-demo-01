@@ -1,0 +1,75 @@
+{
+    "family": "dbl-traefikee-proxies",
+    "taskRoleArn": "arn:aws:iam::114072598128:role/RoleTraefikECSReadAccess",
+    "executionRoleArn": "arn:aws:iam::114072598128:role/ecsTaskExecutionRole",
+    "cpu": "512",
+    "memory": "1024",
+    "containerDefinitions": [      
+        {
+            "name": "proxy",
+            "image": "traefik/traefikee:v2.4.18",
+            "cpu": 500,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                },
+                {
+                    "containerPort": 443,
+                    "hostPort": 443,
+                    "protocol": "tcp"
+                },
+                {
+                    "containerPort": 8484,
+                    "hostPort": 8484,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "proxy",
+                "--role=ingress",
+                "--discovery.dns.domain=dbl-traefikee-controller.traefikee"
+            ],
+            "linuxParameters": {
+                "initProcessEnabled": true
+            },
+            "environment": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "TRAEFIKEE_JOIN_TOKEN",
+                    "valueFrom": "arn:aws:secretsmanager:eu-north-1:114072598128:secret:dbl-traefikee-secret-EFxxo6:TRAEFIKEE_JOIN_TOKEN::"
+                }
+            ],
+            "dockerLabels": {
+                "com.traefik.traefikee.component": "proxies",
+                "traefik.enable": "true",
+                "traefik.http.services.self.loadbalancer.server.port": "80",
+                "traefik.http.routers.self.entrypoints": "web"
+            },
+            "mountPoints": [],
+            "readonlyRootFilesystem": true,
+            "privileged": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "ecs/dbl-traefik",
+                    "awslogs-region": "eu-north-1",
+                    "awslogs-stream-prefix": "dbl-proxies"
+                }
+        }
+         
+        }
+    ],
+    "networkMode": "awsvpc",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+
+    "requiresCompatibilities": [
+        "FARGATE"
+    ]
+}

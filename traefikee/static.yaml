@@ -1,0 +1,39 @@
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: :443
+
+api:
+  dashboard: true
+
+cluster:
+  cleanup:
+    gracePeriod: "5m"
+
+log:
+ level: "debug"
+
+providers:
+  ecs:
+    exposedByDefault: false
+    clusters:
+      - dbl-fargate
+    region: eu-north-1
+
+certificatesResolvers:
+  default:
+    acme:
+      email: "tee-prod@containo.us"
+      tlschallenge: {}
+
+authSources:
+  oidcSource:
+    oidc:
+      issuer: "http://keycloak.mageekbox.eu:8080/auth/realms/traefiklabs"
+      clientID: "demo-app"
+      clientSecret: "mUwBU8xRBzXPKJpJ54lOuXzxFQbMi3BL"
+  jwtSource:
+    jwt:
+      jwksUrl: "http://keycloak.mageekbox.eu:8080/auth/realms/traefiklabs/protocol/openid-connect/certs"
+    

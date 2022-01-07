@@ -1,0 +1,19 @@
+{
+    "serviceName": "dbl-whoami",
+    "taskDefinition": "dbl-whoami",
+    "desiredCount": 3,
+    "launchType": "FARGATE",    
+    "schedulingStrategy": "REPLICA",
+    "networkConfiguration": {
+        "awsvpcConfiguration": {
+            "subnets": [
+                "subnet-0545110eb9cc7c6a0",
+                "subnet-0f8ce97a09f11bfc7"
+            ],
+            "securityGroups": [
+                "sg-0ec9cc796b21af8fc"
+            ],
+            "assignPublicIp": "ENABLED"
+        }
+    }
+}

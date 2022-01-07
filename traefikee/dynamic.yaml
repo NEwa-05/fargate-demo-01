@@ -1,0 +1,48 @@
+http:
+  routers:
+    dashboard:
+      entryPoints:
+        - "websecure"
+      rule: Host(`fardash.mageekbox.eu`)
+      service: api@internal
+      tls:
+        certResolver: default
+  middlewares:
+    jwt:
+      plugin:
+        jwtAuth:
+          source: jwtSource
+          forwardHeaders:
+            X-Traefik-Groups: groups
+    oidc:
+      plugin:
+        oidcAuth:
+          source: oidcSource
+          scopes:
+            - openid
+          redirectUrl: "/callback"
+          logoutUrl: "/logout"
+          session:
+            name: "%s-session"
+            path: "/"
+            secret: powpowpowpowpowpowpowpow
+            expiry: 86400
+          forwardHeaders:
+            X-Traefik-Groups: groups
+            X-Traefik-Username: preferred_username
+            X-Traefik-Email: email
+          claims: Contains(`roles`, `admin`)
+    ratelimit-1:
+      plugin:
+        rateLimit:
+          average: 1
+          burst: 1
+          sourceCriterion:
+            requestHeaderName: X-Traefik-Groups
+    ratelimit-2:
+      plugin:
+        rateLimit:
+          average: 100
+          burst: 100
+          sourceCriterion:
+            requestHeaderName: X-Traefik-Groups

@@ -1,0 +1,57 @@
+
+{
+    "family": "dbl-httpbin",
+    "taskRoleArn": "arn:aws:iam::114072598128:role/RoleTraefikECSReadAccess",
+    "executionRoleArn": "arn:aws:iam::114072598128:role/ecsTaskExecutionRole",
+    "cpu": "512",
+    "memory": "1024",
+    "containerDefinitions": [
+        {
+            "name": "dbl-httpbin",
+            "image": "kennethreitz/httpbin",
+            "cpu": 500,
+            "portMappings": [],
+            "essential": true,
+            "command": [],
+            "linuxParameters": {},
+            "environment": [],
+            "volumesFrom": [],
+            "secrets": [],
+            "dockerLabels": {
+                "traefik.enable": "true",
+                "traefik.http.services.httpbin.loadbalancer.server.port": "80",
+                "traefik.http.routers.httpbin.entrypoints": "websecure",
+                "traefik.http.routers.httpbin.tls": "true",
+                "traefik.http.routers.httpbin.tls.certresolver": "default",
+                "traefik.http.routers.httpbin.rule": "Host(`httpbin.mageekbox.eu`)",
+                "traefik.http.routers.httpbin.service": "self@ecs",
+                "traefik.http.routers.httpbin.middlewares": "jwt@traefikee",
+                "traefik.http.routers.httpbin_rated2.entrypoints": "web",
+                "traefik.http.routers.httpbin_rated2.rule": "Host(`httpbin.mageekbox.eu`) && Headers(`X-Traefik-Groups`, `group2`)",
+                "traefik.http.routers.httpbin_rated2.service": "httpbin@ecs",
+                "traefik.http.routers.httpbin_rated2.middlewares": "ratelimit-1@traefikee"
+            },
+            "mountPoints": [],
+            "readonlyRootFilesystem": false,
+            "privileged": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "ecs/dbl-traefik",
+                    "awslogs-region": "eu-north-1",
+                    "awslogs-stream-prefix": "httpbin"
+                }
+            }
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+
+    "requiresCompatibilities": [
+        "FARGATE"
+    ]
+}

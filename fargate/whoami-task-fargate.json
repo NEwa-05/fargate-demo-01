@@ -1,0 +1,61 @@
+
+{
+    "family": "dbl-whoami",
+    "taskRoleArn": "arn:aws:iam::114072598128:role/RoleTraefikECSReadAccess",
+    "executionRoleArn": "arn:aws:iam::114072598128:role/ecsTaskExecutionRole",
+    "cpu": "512",
+    "memory": "1024",
+    "containerDefinitions": [
+        {
+            "name": "dbl-whoami",
+            "image": "traefik/traefikee-webapp-demo:v2",
+            "cpu": 500,
+            "portMappings": [],
+            "essential": true,
+            "command": [],
+            "linuxParameters": {},
+            "environment": [],
+            "volumesFrom": [],
+            "secrets": [],
+            "dockerLabels": {
+                "traefik.enable": "true",
+                "traefik.http.services.whoami.loadbalancer.server.port": "80",
+                "traefik.http.routers.whoami.entrypoints": "websecure",
+                "traefik.http.routers.whoami.tls": "true",
+                "traefik.http.routers.whoami.tls.certresolver": "default",
+                "traefik.http.routers.whoami.rule": "Host(`farapp.mageekbox.eu`)",
+                "traefik.http.routers.whoami.service": "self@ecs",
+                "traefik.http.routers.whoami.middlewares": "oidc@traefikee",
+                "traefik.http.routers.whoami_rated1.entrypoints": "web",
+                "traefik.http.routers.whoami_rated1.rule": "Host(`farapp.mageekbox.eu`) && Headers(`X-Traefik-Groups`, `group1`)",
+                "traefik.http.routers.whoami_rated1.service": "whoami@ecs",
+                "traefik.http.routers.whoami_rated1.middlewares": "ratelimit-1@traefikee",
+                "traefik.http.routers.whoami_rated2.entrypoints": "web",
+                "traefik.http.routers.whoami_rated2.rule": "Host(`farapp.mageekbox.eu`) && Headers(`X-Traefik-Groups`, `group2`)",
+                "traefik.http.routers.whoami_rated2.service": "whoami@ecs",
+                "traefik.http.routers.whoami_rated2.middlewares": "ratelimit-2@traefikee"
+            },
+            "mountPoints": [],
+            "readonlyRootFilesystem": true,
+            "privileged": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "ecs/dbl-traefik",
+                    "awslogs-region": "eu-north-1",
+                    "awslogs-stream-prefix": "whoami"
+                }
+            }
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+
+    "requiresCompatibilities": [
+        "FARGATE"
+    ]
+}
